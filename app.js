@@ -1,11 +1,16 @@
 require("dotenv").config();
 const express = require("express");
 const fileUpload = require("express-fileupload");
+<<<<<<< HEAD
+=======
+const cors = require("cors");
+>>>>>>> bd5c4b5d64701e9d97c43629b00796a791e15c7d
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const connectDB = require("./db/connect");
 const File = require("./models/File");
 const fs = require("fs");
+<<<<<<< HEAD
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const mongoSanitize = require('express-mongo-sanitize');
@@ -14,10 +19,19 @@ const cookieParser = require('cookie-parser');
 const csrf = require('csurf');
 const cors = require('cors');
 
+=======
+const rateLimit = require('express-rate-limit');
+const nosqlSanitizer = require('express-nosql-sanitizer');
+const { xss } = require('express-xss-sanitizer');
+>>>>>>> bd5c4b5d64701e9d97c43629b00796a791e15c7d
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+<<<<<<< HEAD
+=======
+app.use(xss());
+>>>>>>> bd5c4b5d64701e9d97c43629b00796a791e15c7d
 
 const sendEmailMailjet = require("./controllers/sendEmail");
 
@@ -30,10 +44,19 @@ const limiter = rateLimit({
 	legacyHeaders: false,
 })
 
+<<<<<<< HEAD
+=======
+app.use(nosqlSanitizer());
+
+app.use(limiter)
+
+
+>>>>>>> bd5c4b5d64701e9d97c43629b00796a791e15c7d
 app.use(cors({
   exposedHeaders: ['Content-Disposition']
 }));
 app.use(fileUpload());
+<<<<<<< HEAD
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -68,6 +91,8 @@ app.use((err, req, res, next) => {
   }
   next(err);
 });
+=======
+>>>>>>> bd5c4b5d64701e9d97c43629b00796a791e15c7d
 
 
 app.post("/", express.json(), async (req, res) => {

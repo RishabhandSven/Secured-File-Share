@@ -1,3 +1,7 @@
 /node_modules
+<<<<<<< HEAD
 .env
 .git
+=======
+.env
+>>>>>>> bd5c4b5d64701e9d97c43629b00796a791e15c7d
