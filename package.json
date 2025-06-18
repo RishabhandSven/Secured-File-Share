@@ -11,15 +11,11 @@
   "dependencies": {
     "@sendgrid/mail": "^8.1.0",
     "bcryptjs": "^2.4.3",
-<<<<<<< HEAD
     "cookie-parser": "^1.4.7",
-=======
->>>>>>> bd5c4b5d64701e9d97c43629b00796a791e15c7d
     "cors": "^2.8.5",
     "dotenv": "^16.3.2",
     "express": "^4.18.2",
     "express-fileupload": "^1.4.3",
-<<<<<<< HEAD
     "express-mongo-sanitize": "^2.2.0",
     "express-nosql-sanitizer": "^1.1.1",
     "express-rate-limit": "^7.5.0",
@@ -27,21 +23,11 @@
     "express-xss-sanitizer": "^1.1.8",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
-=======
-    "express-nosql-sanitizer": "^1.1.1",
-    "express-rate-limit": "^7.1.5",
-    "express-xss-sanitizer": "^1.1.8",
->>>>>>> bd5c4b5d64701e9d97c43629b00796a791e15c7d
     "mongoose": "^8.1.0",
     "node-mailjet": "^6.0.5",
     "nodemailer": "^6.9.8",
     "sib-api-v3-sdk": "^8.5.0",
-<<<<<<< HEAD
     "uuid": "^9.0.1",
     "xss-clean": "^0.1.4"
-=======
-    "sql-injection": "^0.0.7",
-    "uuid": "^9.0.1"
->>>>>>> bd5c4b5d64701e9d97c43629b00796a791e15c7d
   }
 }
