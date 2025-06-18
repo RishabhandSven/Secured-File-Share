@@ -1,0 +1,95 @@
+const nodemailer = require("nodemailer");
+const sgMail = require('@sendgrid/mail');
+const Mailjet = require('node-mailjet');
+const SibApiV3Sdk = require('sib-api-v3-sdk');
+require('dotenv').config(); // Load env vars from .env
+
+// Mailjet global config (optional if using inside function)
+const mailjet = Mailjet.apiConnect(
+  process.env.MJ_APIKEY_PUBLIC,
+  process.env.MJ_APIKEY_PRIVATE,
+  {
+    config: {},
+    options: {}
+  }
+);
+
+// ✉️ ETHEREAL EMAIL (Testing Only)
+const sendEmailEthereal = async (req, res) => {
+  let testAccount = await nodemailer.createTestAccount();
+
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.ethereal.email',
+    port: 587,
+    auth: {
+      user: 'jamar.hodkiewicz61@ethereal.email',
+      pass: 'vWjxnQ9QryVBm7GtJD'
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
+
+  let info = await transporter.sendMail({
+    from: '"Kuzma02" <rishabh.roy0677@gmail.com>',
+    to: 'ask2royrishabh@gmail.com', // ✅ Your email
+    subject: 'Hello',
+    html: '<h2>Sending Emails With Node.js (Ethereal)</h2>'
+  });
+
+  res.json({
+    message: 'Email sent (Ethereal)',
+    previewURL: nodemailer.getTestMessageUrl(info),
+    info
+  });
+};
+
+// 📩 MAILJET EMAIL (Production)
+const sendEmailMailjet = async (fileID, senderName = "Encrypt Share") => {
+  const mailjet = Mailjet.apiConnect(
+    process.env.MJ_APIKEY_PUBLIC,
+    process.env.MJ_APIKEY_PRIVATE
+  );
+
+  try {
+    const request = await mailjet
+      .post('send', { version: 'v3.1' })
+      .request({
+        Messages: [
+          {
+            From: {
+              Email: "rishabh.roy0677@gmail.com",
+              Name: senderName
+            },
+            To: [
+              {
+                Email: "ask2royrishabh@gmail.com", // ✅ Your email
+                Name: "Rishabh"
+              }
+            ],
+            Subject: "Here is your File ID!",
+            TextPart: `Dear user, here is your File ID: ${fileID}`,
+            HTMLPart: `
+              <h3>Dear user,</h3>
+              <p>Download page: <a href='http://localhost:5173/download'>Click here</a></p>
+              <p>Here is your File ID: <strong>${fileID}</strong></p>
+              <p><b>Because of our security policy, we don't share passwords in emails. Please ask the sender directly.</b></p>
+            `
+          }
+        ]
+      });
+
+    if (request && request.body) {
+      return { success: true, data: request.body };
+    } else {
+      return { success: false, error: "Email sending failed" };
+    }
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+};
+
+module.exports = {
+  sendEmailEthereal,
+  sendEmailMailjet
+};
