@@ -1,20 +1,23 @@
 require("dotenv").config();
 const express = require("express");
 const fileUpload = require("express-fileupload");
-const cors = require("cors");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const connectDB = require("./db/connect");
 const File = require("./models/File");
 const fs = require("fs");
+const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
-const nosqlSanitizer = require('express-nosql-sanitizer');
-const { xss } = require('express-xss-sanitizer');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
+const cors = require('cors');
+
 const app = express();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(xss());
 
 const sendEmailMailjet = require("./controllers/sendEmail");
 
@@ -27,15 +30,44 @@ const limiter = rateLimit({
 	legacyHeaders: false,
 })
 
-app.use(nosqlSanitizer());
-
-app.use(limiter)
-
-
 app.use(cors({
   exposedHeaders: ['Content-Disposition']
 }));
 app.use(fileUpload());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      connectSrc: ["'self'", "http://localhost:4000"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+    }
+  }
+}));
+app.use(mongoSanitize());
+app.use(xss());
+app.use(cookieParser());
+app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+
+app.use(cors({
+  origin: ['http://localhost:5173'], // your frontend domain(s)
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+app.use(csrf({ cookie: { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' } }));
+
+// Hide stack traces in production
+app.use((err, req, res, next) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
+  next(err);
+});
 
 
 app.post("/", express.json(), async (req, res) => {
