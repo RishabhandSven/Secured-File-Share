@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema({
 // Hash password before saving
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
+  this.password = await bcrypt.hash(this.password, 12); // saltRounds >= 10
   next();
 });
 

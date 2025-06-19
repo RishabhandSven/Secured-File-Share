@@ -1,7 +1,6 @@
 require("dotenv").config();
 const express = require("express");
 const fileUpload = require("express-fileupload");
-const cors = require("cors");
 const path = require("path");
 const { v4: uuidv4 } = require("uuid");
 const connectDB = require("./db/connect");
@@ -9,6 +8,7 @@ const File = require("./models/File");
 const fs = require("fs");
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const cors = require('cors');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const cookieParser = require('cookie-parser');
@@ -20,14 +20,26 @@ const sendEmailMailjet = require("./controllers/sendEmail");
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-const limiter = rateLimit({
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://cdn.jsdelivr.net"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      connectSrc: ["'self'", "http://localhost:4000"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'none'"],
+    }
+  }
+}));
+app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
   standardHeaders: 'draft-7',
   legacyHeaders: false,
-});
-
-app.use(limiter);
+}));
 
 app.use(cors({
   exposedHeaders: ['Content-Disposition'],
@@ -39,7 +51,8 @@ app.use(fileUpload());
 app.use(mongoSanitize());
 app.use(xss());
 app.use(cookieParser());
-
+app.use(require('xss-clean')()); // XSS protection
+app.use(require('express-mongo-sanitize')()); // NoSQL injection protection
 app.use(csrf({ cookie: { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' } }));
 
 // Hide stack traces in production
@@ -153,6 +166,14 @@ app.post("/send", express.json(), async (req, res) => {
   }
 });
 
+
+app.use((req, res, next) => {
+  res.status(404).json({ msg: "Not Found" });
+});
+app.use((err, req, res, next) => {
+  if (err.status === 403) return res.status(403).json({ msg: "Forbidden" });
+  next(err);
+});
 
 const port = process.env.PORT || 4000;
 

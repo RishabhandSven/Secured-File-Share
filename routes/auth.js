@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { body, validationResult } = require('express-validator');
+const { body, param, query, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
@@ -12,6 +12,7 @@ const loginLimiter = rateLimit({
   message: "Too many login attempts, please try again later."
 });
 
+// Example: Signup route
 router.post('/signup', [
   body('email').isEmail().normalizeEmail(),
   body('password').isStrongPassword(),
@@ -36,7 +37,7 @@ router.post('/login', loginLimiter, async (req, res) => {
   const isPasswordValid = await bcrypt.compare(password, user.password);
   if (!isPasswordValid) return res.status(401).json({ msg: "Invalid credentials" });
 
-  const token = jwt.sign({ userId: user._id }, 'your_jwt_secret', { expiresIn: '1h' });
+  const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h', algorithm: 'HS256' });
   res.cookie('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
