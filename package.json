@@ -4,7 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "vite",
+    "start": "node app.js"
   },
   "author": "Kuzma02",
   "license": "ISC",
@@ -13,6 +14,7 @@
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "csurf": "^1.2.2",
     "dotenv": "^16.3.2",
     "express": "^4.18.2",
     "express-fileupload": "^1.4.3",
